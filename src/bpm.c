@@ -12,12 +12,6 @@
 #define REAL 0
 #define IMAG 1
 
-
-struct fft {
-	int n_samples;
-	fftwf_complex* data;
-};
-
 static void
 normalize(float* data, int n_samples, long chunk_size)
 {
@@ -62,22 +56,23 @@ output_wav(float* data, int n_samples, int sample_rate, long chunk_size)
 	fclose(wav);
 }
 
-static struct fft
+fftwf_complex*
 generate_fft(float* wav, int n_samples, int n_channels)
 {
-	struct fft fft = {0};
-	fft.n_samples = ((n_samples / 2) + 1);
-	fft.data = fftwf_malloc(fft.n_samples * sizeof *fft.data);
+	fftwf_complex* data;
+	fftwf_plan plan;
 
-	fftwf_plan p = fftwf_plan_dft_r2c_1d(n_samples, wav, fft.data, FFTW_ESTIMATE);
-    fftwf_execute(p);
-    fftwf_destroy_plan(p);
+	data = fftwf_malloc(n_samples * sizeof *data);
+	plan = fftwf_plan_dft_r2c_1d(n_samples, wav, data, FFTW_ESTIMATE);
 
-	return fft;
+    fftwf_execute(plan);
+    fftwf_destroy_plan(plan);
+
+	return data;
 }
 
 static void
-output_fft(struct fft fft, int sample_rate, long chunk_size)
+output_fft(fftwf_complex* data, int n_samples, int sample_rate, long chunk_size)
 {
 	char output_dir[16];
 	sprintf(output_dir, "output/%ld", chunk_size); 
@@ -90,9 +85,9 @@ output_fft(struct fft fft, int sample_rate, long chunk_size)
 	char output[32];
 	sprintf(output, "%s/fft.csv", output_dir); 
 	FILE* temp = fopen(output, "w");
-	for (int i = 0; i < fft.n_samples; i++) {
-		float x = (float)i * (sample_rate / (float)fft.n_samples);
-		float y = sqrt(fft.data[i][REAL] * fft.data[i][REAL] + fft.data[i][IMAG] * fft.data[i][IMAG]);
+	for (int i = 0; i < n_samples; i++) {
+		float x = (float)i * (sample_rate / (float)n_samples);
+		float y = sqrt(data[i][REAL] * data[i][REAL] + data[i][IMAG] * data[i][IMAG]);
 		if (x < 0.5) {
 			y = 0;
 		}
@@ -133,11 +128,11 @@ main(int argc, char* argv[])
 	normalize(md->data[0], md->n_samples, chunk_size);
 	output_wav(md->data[0], md->n_samples, md->sample_rate, chunk_size);
 
-	struct fft fft = generate_fft(md->data[0], md->n_samples, md->n_channels);
-	output_fft(fft, md->sample_rate, chunk_size);
+	fftwf_complex* fft = generate_fft(md->data[0], md->n_samples, md->n_channels);
+	output_fft(fft, md->n_samples, md->sample_rate, chunk_size);
 
 	/* Clean up */
-    fftwf_free(fft.data);	
+    fftwf_free(fft);	
 	free_audio(md);
 	
     return 0;

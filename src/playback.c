@@ -21,13 +21,22 @@ init_audio(const char* audio_file)
     float* data = malloc(wav.totalPCMFrameCount * wav.channels * sizeof *data);
     drwav_read_pcm_frames_f32(&wav, wav.totalPCMFrameCount, data);
 
+	unsigned int nearest_power = wav.totalPCMFrameCount;
+	nearest_power--;
+	nearest_power |= nearest_power >> 1;
+	nearest_power |= nearest_power >> 2;
+	nearest_power |= nearest_power >> 4;
+	nearest_power |= nearest_power >> 8;
+	nearest_power |= nearest_power >> 16;
+	nearest_power++;
+
 	md->n_channels = wav.channels;
-	md->n_samples = wav.totalPCMFrameCount;
+	md->n_samples = nearest_power;
 	md->sample_rate = wav.sampleRate;
 	md->samples_played = 0;
 	md->data = malloc(wav.channels * sizeof *md->data);
 	for (int c = 0; c < wav.channels; c++) {
-		md->data[c] = malloc(wav.totalPCMFrameCount * sizeof *md->data[c]);
+		md->data[c] = calloc(md->n_samples, sizeof *md->data[c]);
 		for (int s = 0; s < wav.totalPCMFrameCount; s++) { 
 			md->data[c][s] = data[s * wav.channels];
 		}
@@ -131,7 +140,7 @@ play(struct metadata* md)
 	return 0;
 }
 
-static void 
+void 
 write_callback(struct SoundIoOutStream *outstream, int frame_count_min, int frame_count_max) 
 {
 	struct metadata* md = outstream->userdata;
@@ -174,7 +183,7 @@ write_callback(struct SoundIoOutStream *outstream, int frame_count_min, int fram
     }
 }
 
-static void 
+void 
 underflow_callback(struct SoundIoOutStream *outstream) 
 {
     static int count = 0;

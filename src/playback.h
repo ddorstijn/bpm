@@ -16,7 +16,7 @@ struct metadata* init_audio(const char* audio_file);
 void free_audio(struct metadata* md);
 
 int play(struct metadata* metadata);
-static void write_callback(struct SoundIoOutStream *outstream, int frame_count_min, int frame_count_max);
-static void underflow_callback(struct SoundIoOutStream *outstream);
+void write_callback(struct SoundIoOutStream *outstream, int frame_count_min, int frame_count_max);
+void underflow_callback(struct SoundIoOutStream *outstream);
 
 #endif

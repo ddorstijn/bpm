@@ -23,7 +23,7 @@ plt.plot(x, y, "b-", markersize=1)
 plt.yscale("log")
 plt.xlabel("Time (s)")
 plt.ylabel("Amplitude (v)")
-plt.xlim(0, 5)
+plt.xlim(0, .05)
 
 # Plot fft
 data = genfromtxt(input_fft, delimiter=',')
@@ -34,6 +34,7 @@ plt.plot(x, y, "ro", markersize=1)
 plt.yscale("log")
 plt.xlabel("Freq (Hz)")
 plt.ylabel("Abs FFT audio (v)")
-plt.xlim(0, 50)
+plt.xlim(0, 500)
 
-plt.savefig(output_png, bbox_inches='tight')
+#plt.savefig(output_png)
+plt.show()
