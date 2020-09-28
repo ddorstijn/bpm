@@ -1,20 +1,22 @@
+output_dir = bin
+program_name = bpm
 src = $(wildcard src/*.c)
 obj = $(src:.c=.o)
 
 LDFLAGS =  -lsoundio -lfftw3f -lm
 
-all: bpm
+all: release
 
 debug: CFLAGS += -g -Wall
-debug: bpm
+debug: $(program_name)
 
 release: CFLAGS += -O3
-release: bpm
+release: $(program_name)
 
-bpm: $(obj)
-	$(CC) -o $@ $^ $(LDFLAGS)
+$(program_name): $(obj)
+	$(CC) -o $(output_dir)/$@ $^ $(LDFLAGS)
 
 .PHONY: clean
 clean:
-	rm -f $(obj) bpm
+	rm -f $(obj) $(output_dir)/$(program_name)
 
