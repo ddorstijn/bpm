@@ -20,10 +20,8 @@ x, y = data.T
 plt.figure(1)
 plt.subplot(211)
 plt.plot(x, y, "b-", markersize=1)
-plt.yscale("log")
 plt.xlabel("Time (s)")
 plt.ylabel("Amplitude (v)")
-plt.xlim(0, .05)
 
 # Plot fft
 data = genfromtxt(input_fft, delimiter=',')
@@ -37,4 +35,4 @@ plt.ylabel("Abs FFT audio (v)")
 plt.xlim(0, 500)
 
 plt.savefig(output)
-#plt.show()
+plt.show()

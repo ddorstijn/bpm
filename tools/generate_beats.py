@@ -54,4 +54,4 @@ def save_wav(file_name):
 
 
 generate_beeps()
-save_wav("../songs/sine_beat.wav")
+save_wav("data/sine_beat.wav")
